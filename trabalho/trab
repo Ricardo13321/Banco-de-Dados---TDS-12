@@ -1,16 +1,12 @@
-
-DROP DATABASE IF EXISTS vitor;
-CREATE DATABASE vitor;
-USE vitor;
-
-
+DROP DATABASE IF EXISTS ricardo;
+CREATE DATABASE ricardo;
+USE ricardo;
 
 CREATE TABLE departamentos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(50) NOT NULL,
     sigla VARCHAR(10)
 );
-
 
 CREATE TABLE funcionarios (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -25,14 +21,12 @@ CREATE TABLE funcionarios (
     FOREIGN KEY (dept_id) REFERENCES departamentos(id)
 );
 
-
 CREATE TABLE projetos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
     orcamento DECIMAL(10,2),
     data_inicio DATE
 );
-
 
 CREATE TABLE alocacao (
     funcionario_id INT NOT NULL,
@@ -43,14 +37,12 @@ CREATE TABLE alocacao (
     FOREIGN KEY (projeto_id) REFERENCES projetos(id)
 );
 
-
 INSERT INTO departamentos (nome, sigla) VALUES
 ('Tecnologia da Informação', 'TI'),
 ('Recursos Humanos', 'RH'),
 ('Financeiro', 'FIN'),
 ('Marketing', 'MKT'),
 ('Vendas', 'VND');
-
 
 INSERT INTO funcionarios (dept_id, nome, email, cpf, telefone, salario, cargo, data_admissao) VALUES
 (1, 'Ana Silva', 'ana@empresa.com', '123.456.789-01', '(11) 99999-8888', 8500.00, 'Gerente de TI', '2020-03-10'),
@@ -61,12 +53,10 @@ INSERT INTO funcionarios (dept_id, nome, email, cpf, telefone, salario, cargo, d
 (5, 'Fernando Gomes', 'fernando@empresa.com', '654.987.321-65', '(11) 94444-3333', 6800.00, 'Vendedor', '2021-09-22'),
 (1, 'Gabriela Martins', 'gabriela@empresa.com', '987.321.654-98', '(11) 93333-2222', 5300.00, 'Analista de Sistemas', '2020-08-14');
 
-
 INSERT INTO projetos (nome, orcamento, data_inicio) VALUES
 ('Sistema de Gestão', 120000.00, '2024-01-15'),
 ('Site Nova Empresa', 80000.00, '2024-02-01'),
 ('App Mobile', 150000.00, '2024-03-10');
-
 
 INSERT INTO alocacao (funcionario_id, projeto_id, horas_semanais) VALUES
 (1, 1, 20),
@@ -75,29 +65,21 @@ INSERT INTO alocacao (funcionario_id, projeto_id, horas_semanais) VALUES
 (5, 2, 25),
 (7, 3, 15);
 
-
 SELECT 'Base de dados criada com sucesso!' as mensagem;
 SELECT 'ATENÇÃO: CPFs estão VISÍVEIS no banco!' as alerta;
 SELECT 'Total de funcionários:' as info, COUNT(*) as quantidade FROM funcionarios;
 
-
-
-
 SELECT * FROM funcionarios;
-
 
 SELECT f.nome, f.cargo, d.nome as departamento
 FROM funcionarios f
 JOIN departamentos d ON f.dept_id = d.id;
-
 
 SELECT d.nome, COUNT(f.id) as total_funcionarios
 FROM departamentos d
 LEFT JOIN funcionarios f ON d.id = f.dept_id
 GROUP BY d.nome
 ORDER BY total_funcionarios DESC;
-
-
 
 -- 2.1
 SELECT d.nome,
@@ -124,8 +106,6 @@ FROM projetos p
 JOIN alocacao a ON p.id = a.projeto_id
 JOIN funcionarios f ON a.funcionario_id = f.id
 ORDER BY p.nome;
-
-
 
 -- 3.1
 SELECT nome, cpf, email, telefone
@@ -155,28 +135,22 @@ LEFT JOIN alocacao a ON f.id = a.funcionario_id
 LEFT JOIN projetos p ON a.projeto_id = p.id
 GROUP BY f.id;
 
-
 --  4.1
 CREATE USER 'gerente_ti'@'localhost' IDENTIFIED BY 'Ger3nt3@2024!';
 
-GRANT ALL PRIVILEGES ON vitor.* TO 'gerente_ti'@'localhost';
-
+GRANT ALL PRIVILEGES ON ricardo.* TO 'gerente_ti'@'localhost';
 
 CREATE USER 'analista_rh'@'localhost' IDENTIFIED BY 'Anal1st@2024!';
 
-GRANT SELECT ON vitor.* TO 'analista_rh'@'localhost';
+GRANT SELECT ON ricardo.* TO 'analista_rh'@'localhost';
 
 CREATE USER 'estagiario'@'localhost' IDENTIFIED BY 'Est4gi@2024!';
 
-GRANT SELECT (id, nome, cargo) ON vitor.funcionarios TO 'estagiario'@'localhost';
-
+GRANT SELECT (id, nome, cargo) ON ricardo.funcionarios TO 'estagiario'@'localhost';
 
 SELECT User, Host FROM mysql.user WHERE User LIKE '%empresa%' OR User IN ('gerente_ti', 'analista_rh', 'estagiario');
 
-
 SHOW GRANTS FOR 'analista_rh'@'localhost';
-
--- 4.3
 
 -- 5.1
 SET @chave_secreta = 'MinhaChave#2024Segura!';
@@ -185,14 +159,12 @@ SET @chave_secreta = 'MinhaChave#2024Segura!';
 ALTER TABLE funcionarios
 ADD COLUMN cpf_criptografado VARBINARY(255) AFTER cpf; 	
 
-
 SET SQL_SAFE_UPDATES = 0; 
 
 -- 5.3
 UPDATE funcionarios
 SET cpf_criptografado = AES_ENCRYPT(cpf, @chave_secreta)
 WHERE cpf IS NOT NULL;
-
 
 SET SQL_SAFE_UPDATES = 1; 
 
@@ -209,8 +181,6 @@ SELECT
     nome,
     CAST(AES_DECRYPT(cpf_criptografado, @chave_secreta) AS CHAR) as cpf_descriptografado
 FROM funcionarios;
-
-
 
 --  6.1
 CREATE VIEW funcionarios_publico AS
@@ -240,8 +210,7 @@ FROM funcionarios;
 -- 6.2
 SELECT * FROM funcionarios_publico;
 
-
-GRANT SELECT ON vitor.funcionarios_publico TO 'estagiario'@'localhost';
+GRANT SELECT ON ricardo.funcionarios_publico TO 'estagiario'@'localhost';
 
 -- 6.3
 CREATE VIEW funcionarios_rh AS
@@ -256,7 +225,6 @@ SELECT
     d.nome as departamento
 FROM funcionarios f
 JOIN departamentos d ON f.dept_id = d.id;
-
 
 --  7.1
 CREATE TABLE auditoria_funcionarios (
@@ -291,7 +259,6 @@ UPDATE funcionarios
 SET salario = salario * 1.1
 WHERE id = 2;
 
-
 SELECT * FROM auditoria_funcionarios;
 
 -- 7.4
@@ -309,7 +276,6 @@ BEGIN
     );
 END$$
 DELIMITER ;
-
 
 -- 8.1
 
@@ -382,7 +348,7 @@ SELECT
 COUNT(*)
 FROM information_schema.views
 -- CORRIGIDO: usa empresa_seu_nome
-WHERE table_schema = 'vitor';
+WHERE table_schema = 'ricardo';
 
 -- 9.2
 SELECT
@@ -443,5 +409,5 @@ DROP VIEW IF EXISTS funcionarios_publico;
 DROP VIEW IF EXISTS funcionarios_rh;
 
 -- 10.3
-DROP DATABASE IF EXISTS vitor;
-CREATE DATABASE vitor;
+DROP DATABASE IF EXISTS ricardo;
+CREATE DATABASE ricardo;
